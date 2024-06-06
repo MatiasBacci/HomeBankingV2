@@ -7,8 +7,9 @@ namespace HomeBankingV2.Repositories
         IEnumerable<Account> GetAllAccounts();
         IEnumerable<Account> GetAccountsByClient(long clientId);
         Account FindById(long id);
-        Account GetAccountsByNumber(string newAccNumber);
+        Account GetAccountByNumber(string newAccNumber);
+        Account GetAccountByNumberWithTransaction(string username);
         void Save(Account account);
-        
+        void UpdateAccount(Account Account);
     }
 }

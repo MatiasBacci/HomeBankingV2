@@ -30,12 +30,24 @@ namespace HomeBankingV2.Repositories.Implementation
                 .ToList();
         }
 
-        public Account GetAccountsByNumber(string number)
+        public Account GetAccountByNumber(string number)
         {
             return FindByCondition(account => account.Number == number)
                 .FirstOrDefault();
         }
 
+        public Account GetAccountByNumberWithTransaction(string number)
+        {
+            return FindByCondition(account => account.Number == number)
+                .Include(account => account.Transactions)
+                .FirstOrDefault();
+        }
+
+        public void UpdateAccount(Account account)
+        {
+            Update(account);
+            SaveChanges();
+        }
 
         public void Save(Account account)
         {

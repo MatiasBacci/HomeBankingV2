@@ -171,7 +171,7 @@ namespace HomeBankingV2.Controllers
                 do{
                     newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
 
-                } while (_accountRepository.GetAccountsByNumber(newAccNumber) != null);
+                } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
 
                 Client newClient = new Client
                 {
@@ -236,7 +236,7 @@ namespace HomeBankingV2.Controllers
                     {
                         newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
 
-                    } while (_accountRepository.GetAccountsByNumber(newAccNumber) != null);
+                    } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
 
                     // Crear una nueva cuenta
                     Account account = new Account
