@@ -1,6 +1,4 @@
-﻿
-
-using HomeBankingV2.Models;
+﻿using HomeBankingV2.Models;
 
 
 namespace HomeBankingV2.Repositories.Implementation

@@ -1,12 +1,8 @@
-﻿using Azure.Core.Pipeline;
-using HomeBankingV2.DTO_s;
+﻿using HomeBankingV2.DTO_s;
 using HomeBankingV2.Models;
 using HomeBankingV2.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using System;
 using System.Security.Cryptography;
 
 
@@ -97,7 +93,6 @@ namespace HomeBankingV2.Controllers
         public IActionResult GetAllAcounts()
         {
             try
-            
             {
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
