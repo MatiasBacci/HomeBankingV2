@@ -92,6 +92,68 @@ namespace HomeBankingV2.Controllers
             }
         }
 
+        [HttpGet("current/accounts")]
+        [Authorize(Policy = "ClientOnly")]
+        public IActionResult GetAllAcounts()
+        {
+            try
+            
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                {
+                    return StatusCode(403, "Unauthoriced");
+                }
+
+                Client client = _clientRepository.FindByEmail(email);
+
+                if (client == null)
+                {
+                    return NotFound("Client not found");
+                }
+
+                var account = _accountRepository.GetAccountsByClient(client.Id);
+                var accountDTO = account.Select(c => new AccountDTO(c)).ToList();
+                //returns status code 
+                return Ok(accountDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("current/cards")]
+        [Authorize(Policy = "ClientOnly")]
+        public IActionResult GetClientCards()
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                {
+                    return StatusCode(403, "Unauthoriced");
+                }
+
+                Client client = _clientRepository.FindByEmail(email);
+
+                if (client == null)
+                {
+                    return StatusCode(403, "Unauthoriced");
+                }
+
+                var cards = _cardRepository.GetCardsByClient(client.Id);
+                var cardsDTO = cards.Select(c => new CardDTO(c)).ToList();
+
+                return Ok(cardsDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
         [HttpPost]
         public IActionResult Post([FromBody] ClientUserDTO clientUserDTO)
         {
@@ -99,14 +161,14 @@ namespace HomeBankingV2.Controllers
             {
                 //validamos datos antes
                 if (String.IsNullOrEmpty(clientUserDTO.Email) || String.IsNullOrEmpty(clientUserDTO.Password) || String.IsNullOrEmpty(clientUserDTO.FirstName) || String.IsNullOrEmpty(clientUserDTO.LastName))
-                    return StatusCode(403, "datos inválidos");
+                    return StatusCode(403, "Invalid Data");
 
                 //buscamos si ya existe el usuario
                 Client user = _clientRepository.FindByEmail(clientUserDTO.Email);
 
                 if (user != null)
                 {
-                    return StatusCode(403, "Email está en uso");
+                    return StatusCode(403, "Email is already in use");
                 }
 
                 string newAccNumber="";
@@ -163,7 +225,7 @@ namespace HomeBankingV2.Controllers
                  
                 if (client == null)
                 {
-                    return StatusCode(403, "Unauthoriced");
+                    return StatusCode(403, "Forbidden");
                 }
 
                 var clientDTO = new ClientDTO(client);
@@ -190,7 +252,7 @@ namespace HomeBankingV2.Controllers
                         Balance = 0
                     };
 
-                    // Guardar la nueva cuenta en el repositorio
+                    // Guardar la nueva cuenta en el repositorio 
                     _accountRepository.Save(account);
 
                     return StatusCode(201, "Account created");
@@ -206,11 +268,6 @@ namespace HomeBankingV2.Controllers
         [HttpPost("current/cards")]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult CreateCard([FromBody] CreateCardDTO CreateCardDTO) {
-
-            
-            //También ten en cuenta que los numeros de tarjeta y el cvv se deben generar de forma aleatoria.
-
-            //Nota: El valor de la propiedad Number de card debe ser unico, por lo tanto debemos generar alguna comprobación para evitar numeros de tarjeta repetidos en nuestra base de datos.
 
             try
             {
@@ -228,16 +285,41 @@ namespace HomeBankingV2.Controllers
                 //El máximo de tarjetas que podrá tener un cliente es de 6 (3 debit y 3 credit).
                 if (card.Count() < 3 ) {
                     if (card.Any(card => card.Color == CreateCardDTO.color)){
-                        return StatusCode(403, "Unauthoriced to create another card");
+                        return StatusCode(403, "Card already in use");
                     } else
                     {
+                        var allCards = _cardRepository.GetAllCards();
+                        string cardNumber;
+
+                        //validamos con un bucle para asegurarnos que la tarjeta creada no exista en la coleccion de tarjetas totales
+                        do
+                        {
+                            ///creamos numero aleatorio de tarjeta mediante una lista para luego concatenar
+                            List<int> cardDigits = new List<int>();
+
+                            for (int i = 0; i < 4; i++)
+                            {
+                                // generaramos un número aleatorio de 4 dígitos
+                                int number = RandomNumberGenerator.GetInt32(1, 10000);
+                                cardDigits.Add(number);
+                            }
+
+                            // concatenamos los números con formato "xxxx-xxxx-xxxx-xxxx"
+                            cardNumber = string.Join("-", cardDigits.ConvertAll(d => d.ToString("D4")));
+  
+                        } while (allCards.Any(card => card.Number == cardNumber));
+
+                        //creamos un codigo se seguridad
+                        int numberCVV = RandomNumberGenerator.GetInt32(100, 1000);
+
+                        //creamos nuevo obj tarjeta al cliente
                         Card newCard = new Card
                         {
                             CardHolder = client.FirstName + " " + client.LastName,
                             Type = CreateCardDTO.type,
                             Color = CreateCardDTO.color,
-                            Number = "3325-6755-7876-4225",
-                            Cvv = 355,
+                            Number = cardNumber,
+                            Cvv = numberCVV,
                             FromDate = DateTime.Now,
                             ThruDate = DateTime.Now.AddYears(5),
                             ClientId = client.Id,
@@ -245,13 +327,13 @@ namespace HomeBankingV2.Controllers
 
                         _cardRepository.Save(newCard);
 
-                        return StatusCode(201, "ESitooo");
+                        return StatusCode(201, "Card created succesfully");
                     }
                 }
                 else
                 {
                     return StatusCode(403, "Unauthoriced to create another card");
-                };
+                }
             }
             catch (Exception ex) 
             {
