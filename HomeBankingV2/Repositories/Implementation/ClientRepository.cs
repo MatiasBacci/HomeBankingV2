@@ -29,6 +29,7 @@ namespace HomeBankingV2.Repositories.Implementation
                 .ToList();
         }
 
+
         public Client FindByEmail(string email)
         {
             return FindByCondition(client => client.Email.ToUpper() == email.ToUpper())

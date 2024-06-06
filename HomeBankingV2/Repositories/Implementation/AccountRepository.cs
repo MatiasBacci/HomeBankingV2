@@ -23,10 +23,24 @@ namespace HomeBankingV2.Repositories.Implementation
                 .ToList();
         }
 
+        public IEnumerable<Account> GetAccountsByClient(long clientId)
+        {
+            return FindByCondition(account => account.ClientId == clientId)
+                .ToList();
+        }
+
+        public Account GetAccountsByNumber(string number)
+        {
+            return FindByCondition(account => account.Number == number)
+                .FirstOrDefault();
+        }
+
+
         public void Save(Account account)
         {
             Create(account);
             SaveChanges();
         }
+
     }
 }

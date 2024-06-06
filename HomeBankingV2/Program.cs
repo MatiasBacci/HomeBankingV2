@@ -23,6 +23,7 @@ builder.Services.AddDbContext<HomeBankingV2Context>(options =>
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ICardRepository, CardRepository>();
 
 
 //autenticación
@@ -74,7 +75,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 //metodo para utilizar el wwwroot
+app.UseDefaultFiles();
 app.UseStaticFiles();
+
 
 //metodo para utilizar el enrutamiento del back
 app.UseRouting();
