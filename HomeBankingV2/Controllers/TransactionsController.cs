@@ -74,18 +74,18 @@ namespace HomeBankingV2.Controllers
                 var fromAccount = _accountRepository.GetAccountByNumber(transferDTO.FromAccountNumber);
                 if (fromAccount == null)
                 {
-                    return NotFound("Source account not found.");
+                    return NotFound("Account not found.");
                 }
                 else if (fromAccount.ClientId != client.Id)
                 {
-                    return StatusCode(403, "Source account does not belong to the authenticated client.");
+                    return StatusCode(403, "Account does not belong to the authenticated client.");
                 }
 
                 // Verificamos que exista la cuenta de destino
                 var toAccount = _accountRepository.GetAccountByNumber(transferDTO.ToAccountNumber);
                 if (toAccount == null)
                 {
-                    return NotFound("Destination account not found.");
+                    return NotFound("Account not found.");
                 }
 
                 // Verificamos que la cuenta de origen tenga el monto disponible
