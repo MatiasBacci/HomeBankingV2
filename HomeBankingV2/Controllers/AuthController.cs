@@ -30,10 +30,9 @@ namespace HomeBankingV2.Controllers
                 if (!String.Equals(user.Password, clientDTO.Password))
                     return StatusCode(403, "Invalid password");
 
-
                 var claims = new List<Claim>
                 {
-                    new Claim("Client", user.Email),
+                    new Claim("Client", user.Email)
                 };
 
                 if (user.Email == "michael@gmail.com")

@@ -22,6 +22,24 @@ namespace HomeBankingV2.Controllers
             _clientRepository = clientRepository;
         }
 
+
+        [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
+        public IActionResult GetAll()
+        {
+            try
+            {
+                var transactions = _transactionRepository.GetAllTransactions();
+                var transactionsDTO = transactions.Select(t => new TransactionDTO(t)).ToList();
+                //returns status code 
+                return Ok(transactionsDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpPost]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult Transfer ([FromBody] TransferDTO transferDTO)

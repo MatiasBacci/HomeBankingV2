@@ -28,7 +28,6 @@ namespace HomeBankingV2.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
         [HttpGet("{id}")]

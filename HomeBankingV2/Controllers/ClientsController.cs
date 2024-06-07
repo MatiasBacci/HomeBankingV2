@@ -39,7 +39,6 @@ namespace HomeBankingV2.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-
         }
 
         [HttpGet("{id}")]
@@ -148,7 +147,6 @@ namespace HomeBankingV2.Controllers
             }
         }
 
-
         [HttpPost]
         public IActionResult Post([FromBody] ClientUserDTO clientUserDTO)
         {
@@ -196,7 +194,6 @@ namespace HomeBankingV2.Controllers
                 _accountRepository.Save(newAcc);
 
                 return Created();
-
             }
             catch (Exception ex)
             {

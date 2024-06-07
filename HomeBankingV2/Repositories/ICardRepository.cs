@@ -7,7 +7,6 @@ namespace HomeBankingV2.Repositories
         IEnumerable<Card> GetAllCards();
         IEnumerable<Card> FindByType(string Type, long ClientId);
         IEnumerable<Card> GetCardsByClient(long ClientId);
-
         void Save(Card card);
     }
 }

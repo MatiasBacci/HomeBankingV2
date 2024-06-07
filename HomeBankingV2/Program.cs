@@ -3,6 +3,7 @@ using HomeBankingV2.Repositories;
 using Microsoft.EntityFrameworkCore;
 using HomeBankingV2.Repositories.Implementation;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using HomeBankingV2.Repositories.Implementations;
 
 
 //Creamos la variable Builder para despues ir agregando distintos elementos para al final correr
@@ -24,6 +25,8 @@ builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<IClientLoanRepository, ClientLoanRepository>();
 
 
 //autenticación
