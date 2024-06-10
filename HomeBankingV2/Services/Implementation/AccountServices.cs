@@ -8,15 +8,11 @@ namespace HomeBankingV2.Services.Implementation
 {
     public class AccountServices : IAccountServices
     {
-        private readonly IClientRepository _clientRepository;
         private readonly IAccountRepository _accountRepository;
-        private readonly ICardRepository _cardRepository;
 
-        public AccountServices(IClientRepository clientRepository, IAccountRepository accountRepository, ICardRepository cardRepository)
+        public AccountServices(IAccountRepository accountRepository)
         {
-            _clientRepository = clientRepository;
             _accountRepository = accountRepository;
-            _cardRepository = cardRepository;
         }
 
         public IEnumerable<AccountDTO> GetAllAccountsDTOList()
@@ -25,27 +21,33 @@ namespace HomeBankingV2.Services.Implementation
             return accounts.Select(a => new AccountDTO(a)).ToList();
         }
 
-        public Account CreateAccount(ClientDTO clientDTO)
+        public string GenerateAccountNumber()
         {
-            if (clientDTO.Accounts.Count() >= 3)
+            // Generar un nuevo número de cuenta único
+            string newAccNumber = "";
+
+            do
+            {
+                newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
+
+            } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
+            return newAccNumber;
+        }
+
+        public Account CreateAccount(Client client)
+        {
+            if (client.Accounts?.Count() >= 3)
             {
                 throw new Exception("Forbidden");
             }
             else
             {
-                // Generar un nuevo número de cuenta único
-                string newAccNumber = "";
-
-                do
-                {
-                    newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
-
-                } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
+                string newAccNumber = GenerateAccountNumber();
 
                 // Crear una nueva cuenta
                 Account account = new Account
                 {
-                    ClientId = clientDTO.Id,
+                    ClientId = client.Id,
                     Number = newAccNumber,
                     CreationDate = DateTime.Now,
                     Balance = 0
@@ -70,5 +72,7 @@ namespace HomeBankingV2.Services.Implementation
            
             return account;
         }
+
+        
     }
 }

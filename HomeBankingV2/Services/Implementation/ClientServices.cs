@@ -10,14 +10,10 @@ namespace HomeBankingV2.Services.Implementation
     public class ClientServices : IClientServices
     {
         private readonly IClientRepository _clientRepository;
-        private readonly IAccountRepository _accountRepository;
-        private readonly ICardRepository _cardRepository;
 
-        public ClientServices(IClientRepository clientRepository, IAccountRepository accountRepository, ICardRepository cardRepository)
+        public ClientServices(IClientRepository clientRepository, IAccountServices accountServices)
         {
             _clientRepository = clientRepository;
-            _accountRepository = accountRepository;
-            _cardRepository = cardRepository;
         }
 
         public List<ClientDTO> GetAllClients()
@@ -58,14 +54,7 @@ namespace HomeBankingV2.Services.Implementation
 
         public ClientDTO GetCurrentClientDTO(ClaimsPrincipal User)
         {
-            string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-            if (email == string.Empty)
-                throw new UnauthorizedAccessException("Unauthorized");
-            
-            Client client = _clientRepository.FindByEmail(email);
-
-            if (client == null)
-                throw new UnauthorizedAccessException("Unauthorized");
+            Client client = GetCurrentClient(User);
 
             var clientDTO = new ClientDTO(client);
 
@@ -82,13 +71,6 @@ namespace HomeBankingV2.Services.Implementation
             if (existsClient != null)
                 throw new UnauthorizedAccessException("Email is in use");
 
-            string newAccNumber = "";
-
-            do
-            {
-                newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
-
-            } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
 
             Client newClient = new Client
             {
@@ -100,20 +82,8 @@ namespace HomeBankingV2.Services.Implementation
 
             _clientRepository.Save(newClient);
 
-            Client user2 = _clientRepository.FindByEmail(clientUserDTO.Email);
-
-            Account newAcc = new Account
-            {
-                Number = newAccNumber.ToString(),
-                CreationDate = DateTime.Now,
-                Balance = 0,
-                ClientId = user2.Id
-            };
-
-            _accountRepository.Save(newAcc);
             return newClient;
         }
-
 
     }
 }

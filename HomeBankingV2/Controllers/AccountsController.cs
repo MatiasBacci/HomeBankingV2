@@ -1,6 +1,5 @@
 ﻿using HomeBankingV2.DTO_s;
 using HomeBankingV2.Services;
-using HomeBankingV2.Services.Implementation;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -22,10 +21,9 @@ namespace HomeBankingV2.Controllers
         {
             try
             {
-                var accountDTO = _accountServices.GetAllAccountsDTOList();
-
-                //returns status code 
-                return Ok(accountDTO);
+                var accountsDTO = _accountServices.GetAllAccountsDTOList();
+                
+                return Ok(accountsDTO);
             }
             catch (Exception ex)
             {
@@ -39,9 +37,8 @@ namespace HomeBankingV2.Controllers
             try
             {
                 var account = _accountServices.GetById(id);
-                var accountDTO = new AccountDTO(account);
 
-                return Ok(accountDTO);
+                return Ok(new AccountDTO(account));
             }
             catch (Exception ex)
             {

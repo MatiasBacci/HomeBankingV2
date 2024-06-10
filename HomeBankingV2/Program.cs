@@ -30,9 +30,12 @@ builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<IClientLoanRepository, ClientLoanRepository>();
 
-//Agregamos los servicios para los controllers
+//Agregamos los servicios 
 builder.Services.AddScoped<IClientServices, ClientServices>();
 builder.Services.AddScoped<IAccountServices, AccountServices>();
+builder.Services.AddScoped<ICardServices, CardServices>();
+builder.Services.AddScoped<ILoanServices, LoanServices>();
+builder.Services.AddScoped<ITransactionServices, TransactionServices>();
 
 
 //autenticación
