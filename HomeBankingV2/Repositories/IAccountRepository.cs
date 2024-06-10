@@ -10,6 +10,5 @@ namespace HomeBankingV2.Repositories
         Account GetAccountByNumber(string newAccNumber);
         Account GetAccountByNumberWithTransaction(string username);
         void Save(Account account);
-        void UpdateAccount(Account Account);
     }
 }

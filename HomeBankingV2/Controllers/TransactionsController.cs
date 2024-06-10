@@ -74,12 +74,13 @@ namespace HomeBankingV2.Controllers
                     return StatusCode(403, "Insufficient funds in source account.");
                 }
 
+
                 // Creamos transacciones de débito y crédito
                 Transaction debitTransaction = new Transaction
                 {
                     AccountId = fromAccount.Id,
                     Amount = -transferDTO.Amount,
-                    Description = transferDTO.Description,
+                    Description = transferDTO.Description + " - Enviado a cuenta N°: " + toAccount.Number,
                     Date = DateTime.Now,
                     Type = "DEBIT"
                 };
@@ -88,7 +89,7 @@ namespace HomeBankingV2.Controllers
                 {
                     AccountId = toAccount.Id,
                     Amount = transferDTO.Amount,
-                    Description = transferDTO.Description,
+                    Description = transferDTO.Description + " - Recibido de cuenta N°: " + fromAccount.Number,
                     Date = DateTime.Now,
                     Type = "CREDIT"
                 };
@@ -100,8 +101,8 @@ namespace HomeBankingV2.Controllers
                 // Guardamos las transacciones y actualizar las cuentas en la base de datos
                 _transactionRepository.Save(debitTransaction);
                 _transactionRepository.Save(creditTransaction);
-                _accountRepository.UpdateAccount(fromAccount);
-                _accountRepository.UpdateAccount(toAccount);
+                _accountRepository.Save(fromAccount);
+                _accountRepository.Save(toAccount);
 
                 return Ok("Transfer successful.");
             }
