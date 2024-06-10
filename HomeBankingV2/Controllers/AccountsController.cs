@@ -1,6 +1,9 @@
 ﻿using HomeBankingV2.DTO_s;
-using HomeBankingV2.Repositories;
+using HomeBankingV2.Services;
+using HomeBankingV2.Services.Implementation;
 using Microsoft.AspNetCore.Mvc;
+
+
 
 namespace HomeBankingV2.Controllers
 {
@@ -8,10 +11,10 @@ namespace HomeBankingV2.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
-        public AccountsController(IAccountRepository accountRepository)
+        private readonly IAccountServices _accountServices;
+        public AccountsController(IAccountServices accountServices)
         {
-            _accountRepository = accountRepository;
+            _accountServices = accountServices;
         }
 
         [HttpGet]
@@ -19,8 +22,8 @@ namespace HomeBankingV2.Controllers
         {
             try
             {
-                var account = _accountRepository.GetAllAccounts();
-                var accountDTO = account.Select(c => new AccountDTO(c)).ToList();
+                var accountDTO = _accountServices.GetAllAccountsDTOList();
+
                 //returns status code 
                 return Ok(accountDTO);
             }
@@ -35,7 +38,7 @@ namespace HomeBankingV2.Controllers
         {
             try
             {
-                var account = _accountRepository.FindById(id);
+                var account = _accountServices.GetById(id);
                 var accountDTO = new AccountDTO(account);
 
                 return Ok(accountDTO);

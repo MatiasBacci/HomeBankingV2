@@ -44,16 +44,19 @@ namespace HomeBankingV2.Repositories.Implementation
                 .FirstOrDefault();
         }
 
-        public void UpdateAccount(Account account)
-        {
-            Update(account);
-            SaveChanges();
-        }
-
         public void Save(Account account)
         {
-            Create(account);
+            if (account.Id == 0)
+            {
+                Create(account);
+            }
+            else
+            {
+                Update(account);
+            }
+
             SaveChanges();
+            RepositoryContext.ChangeTracker.Clear();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using HomeBankingV2.Models;
 using HomeBankingV2.Repositories.Implementation;
 
-namespace HomeBankingV2.Repositories.Implementations
+namespace HomeBankingV2.Repositories.Implementation
 {
     public class LoanRepository : RepositoryBase<Loan>, ILoanRepository
     {

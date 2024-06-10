@@ -44,7 +44,7 @@ namespace HomeBankingV2.Controllers
         }
 
         [HttpGet("{id}")]
-       
+
         public IActionResult GetId(long id)
         {
             try
@@ -68,7 +68,7 @@ namespace HomeBankingV2.Controllers
             {
                 // Verificamos que los parámetros no estén vacíos o erróneos
                 if (loanAppDTO == null || string.IsNullOrEmpty(loanAppDTO.Payments) || int.Parse(loanAppDTO.Payments) == 0 ||
-                    loanAppDTO.Amount == 0 || string.IsNullOrEmpty(loanAppDTO.ToAccountNumber))
+                    loanAppDTO.Amount <= 0 || string.IsNullOrEmpty(loanAppDTO.ToAccountNumber))
                 {
                     return BadRequest("Please review the fields");
                 }
@@ -136,7 +136,7 @@ namespace HomeBankingV2.Controllers
 
                 _clientloanRepository.Save(requestedLoan);
                 _transactionRepository.Save(transaction);
-                _accountRepository.UpdateAccount(toAccount);
+                _accountRepository.Save(toAccount);
 
                 return Ok("Requested loan successfuly accredited in account.");
             }

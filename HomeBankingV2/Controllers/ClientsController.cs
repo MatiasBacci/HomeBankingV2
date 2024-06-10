@@ -1,8 +1,12 @@
 ﻿using HomeBankingV2.DTO_s;
 using HomeBankingV2.Models;
 using HomeBankingV2.Repositories;
+using HomeBankingV2.Repositories.Implementation;
+using HomeBankingV2.Services;
+using HomeBankingV2.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 
@@ -13,14 +17,14 @@ namespace HomeBankingV2.Controllers
     [ApiController]
     public class ClientsController : ControllerBase
     {
-        private readonly IClientRepository _clientRepository;
-        private readonly IAccountRepository _accountRepository;
+        private readonly IClientServices _clientServices;
+        private readonly IAccountServices _accountServices;
         private readonly ICardRepository _cardRepository;
 
-        public ClientsController(IClientRepository clientRepository, IAccountRepository accountRepository, ICardRepository cardRepository)
+        public ClientsController(IClientServices clientServices, IAccountServices accountServices, ICardRepository cardRepository)
         {
-            _clientRepository = clientRepository;
-            _accountRepository = accountRepository;
+            _clientServices = clientServices;
+            _accountServices = accountServices;
             _cardRepository = cardRepository;
         }
 
@@ -30,54 +34,35 @@ namespace HomeBankingV2.Controllers
         {
             try
             {
-                var clients = _clientRepository.GetAllClients();
-                var clientsDTO = clients.Select(c => new ClientDTO(c)).ToList();
-                //returns status code 
-                return Ok(clientsDTO);
+                return Ok(_clientServices.GetAllClients());
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-
+        
         [HttpGet("{id}")]
         [Authorize(Policy = "AdminOnly")]
         public IActionResult Get(long id)
         {
             try
             {
-                var client = _clientRepository.FindById(id);
-                var clientDTO = new ClientDTO(client);
-
-                return Ok(clientDTO);
+                return Ok(_clientServices.GetById(id));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-
+        
         [HttpGet("current")]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult GetCurrent()
         {
             try
             {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
-                {
-                    return StatusCode(403, "Unauthoriced");
-                }
-
-                Client client = _clientRepository.FindByEmail(email);
-
-                if (client == null)
-                {
-                    return StatusCode(403, "Unauthoriced");
-                }
-
-                var clientDTO = new ClientDTO(client);
+                var clientDTO = _clientServices.GetCurrentClientDTO(User);
 
                 return Ok(clientDTO);
             }
@@ -86,56 +71,31 @@ namespace HomeBankingV2.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
+        
         [HttpGet("current/accounts")]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult GetAllAcounts()
         {
             try
             {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
-                {
-                    return StatusCode(403, "Unauthoriced");
-                }
-
-                Client client = _clientRepository.FindByEmail(email);
-
-                if (client == null)
-                {
-                    return NotFound("Client not found");
-                }
-
-                var account = _accountRepository.GetAccountsByClient(client.Id);
-                var accountDTO = account.Select(c => new AccountDTO(c)).ToList();
+                Client client = _clientServices.GetCurrentClient(User);
+                var accounts = _accountServices.GetAccountByClientId(client.Id);
                 //returns status code 
-                return Ok(accountDTO);
+                return Ok(accounts);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
-
+        
         [HttpGet("current/cards")]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult GetClientCards()
         {
             try
             {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
-                {
-                    return StatusCode(403, "Unauthoriced");
-                }
-
-                Client client = _clientRepository.FindByEmail(email);
-
-                if (client == null)
-                {
-                    return StatusCode(403, "Unauthoriced");
-                }
-
+                Client client= _clientServices.GetCurrentClient(User);
                 var cards = _cardRepository.GetCardsByClient(client.Id);
                 var cardsDTO = cards.Select(c => new CardDTO(c)).ToList();
 
@@ -147,51 +107,13 @@ namespace HomeBankingV2.Controllers
             }
         }
 
+        
         [HttpPost]
         public IActionResult Post([FromBody] ClientUserDTO clientUserDTO)
         {
             try
             {
-                //validamos datos antes
-                if (String.IsNullOrEmpty(clientUserDTO.Email) || String.IsNullOrEmpty(clientUserDTO.Password) || String.IsNullOrEmpty(clientUserDTO.FirstName) || String.IsNullOrEmpty(clientUserDTO.LastName))
-                    return StatusCode(403, "Invalid Data");
-
-                //buscamos si ya existe el usuario
-                Client user = _clientRepository.FindByEmail(clientUserDTO.Email);
-
-                if (user != null)
-                {
-                    return StatusCode(403, "Email is already in use");
-                }
-
-                string newAccNumber="";
-                 
-                do{
-                    newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
-
-                } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
-
-                Client newClient = new Client
-                {
-                    Email = clientUserDTO.Email,
-                    Password = clientUserDTO.Password,
-                    FirstName = clientUserDTO.FirstName,
-                    LastName = clientUserDTO.LastName,
-                };
-                
-                _clientRepository.Save(newClient);
-
-                Client user2 = _clientRepository.FindByEmail(clientUserDTO.Email);
-
-                Account newAcc = new Account
-                {
-                    Number = newAccNumber.ToString(),
-                    CreationDate = DateTime.Now,
-                    Balance = 0,
-                    ClientId = user2.Id
-                };
-
-                _accountRepository.Save(newAcc);
+                Client newClient = _clientServices.CreateNewClient(clientUserDTO);
 
                 return Created();
             }
@@ -201,26 +123,14 @@ namespace HomeBankingV2.Controllers
             }
         }
 
+        /*
         [HttpPost("current/accounts")]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult CreateAccount()
         {
             try
             {
-                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
-                if (email == string.Empty)
-                {
-                    return StatusCode(403, "Unauthoriced");
-                }
-
-                Client client = _clientRepository.FindByEmail(email);
-                 
-                if (client == null)
-                {
-                    return StatusCode(403, "Forbidden");
-                }
-
-                var clientDTO = new ClientDTO(client);
+                var clientDTO = _clientServices.GetCurrentClientDTO(User);
 
                 if (clientDTO.Accounts.Count() >= 3) {
                     return StatusCode(403, "Forbidden");
@@ -238,7 +148,7 @@ namespace HomeBankingV2.Controllers
                     // Crear una nueva cuenta
                     Account account = new Account
                     {
-                        ClientId = client.Id,
+                        ClientId = clientDTO.Id,
                         Number = newAccNumber,
                         CreationDate = DateTime.Now,
                         Balance = 0
@@ -256,7 +166,7 @@ namespace HomeBankingV2.Controllers
                 return StatusCode(403, ex.Message);
             }
         }
-
+        /*
         [HttpPost("current/cards")]
         [Authorize(Policy = "ClientOnly")]
         public IActionResult CreateCard([FromBody] CreateCardDTO CreateCardDTO) {
@@ -331,7 +241,7 @@ namespace HomeBankingV2.Controllers
             {
                 return StatusCode(403, ex.Message);
             }
-        }
+        }*/
     }
 }
 
