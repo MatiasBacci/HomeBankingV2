@@ -1,6 +1,7 @@
 ﻿using HomeBankingV2.DTO_s;
 using HomeBankingV2.Models;
 using HomeBankingV2.Repositories;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -10,8 +11,13 @@ namespace HomeBankingV2.Services.Implementation
     public class ClientServices : IClientServices
     {
         private readonly IClientRepository _clientRepository;
+        private readonly PasswordHasher<Client> _passwordHasher;
 
-        public ClientServices(IClientRepository clientRepository) => _clientRepository = clientRepository;
+        public ClientServices(IClientRepository clientRepository) 
+        {
+            _clientRepository = clientRepository;
+            _passwordHasher = new PasswordHasher<Client>();
+        }
 
         public List <Claim> AddClaims(Client client)
         {
@@ -82,6 +88,9 @@ namespace HomeBankingV2.Services.Implementation
                 FirstName = clientUserDTO.FirstName,
                 LastName = clientUserDTO.LastName,
             };
+
+            // Hashear la contraseña antes de guardarla
+            newClient.Password = _passwordHasher.HashPassword(newClient, clientUserDTO.Password);
 
             _clientRepository.Save(newClient);
 

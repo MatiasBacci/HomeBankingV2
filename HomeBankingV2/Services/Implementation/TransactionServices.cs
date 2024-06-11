@@ -61,12 +61,27 @@ namespace HomeBankingV2.Services.Implementation
                 throw new Exception("Insufficient funds in source account.");
             }
 
+            // Personalizamos mensaje de transaccion
+            string debitDescription;
+            string creditDescription;
+
+            if (toAccount.ClientId == fromAccount.ClientId)
+            {
+                debitDescription = transferDTO.Description + " - Enviado a cuenta propia N°: " + toAccount.Number;
+                creditDescription = transferDTO.Description + " - Recibido desde cuenta propia N°: " + fromAccount.Number;
+            } 
+            else 
+            {
+                debitDescription = transferDTO.Description + " - Enviado a cuenta de terceros N°: " + toAccount.Number;
+                creditDescription = transferDTO.Description + " - Recibido desde cuenta de terceros N°: " + fromAccount.Number;
+            }
+
             // Creamos transacciones de débito y crédito
             Transaction debitTransaction = new()
             {
                 AccountId = fromAccount.Id,
                 Amount = -transferDTO.Amount,
-                Description =  transferDTO.Description + " - Enviado a cuenta N°: " + toAccount.Number,
+                Description = debitDescription,
                 Date = DateTime.Now,
                 Type = "DEBIT"
             };
@@ -75,7 +90,7 @@ namespace HomeBankingV2.Services.Implementation
             {
                 AccountId = toAccount.Id,
                 Amount = transferDTO.Amount,
-                Description = transferDTO.Description + " - Recibido de cuenta N°: " + fromAccount.Number,
+                Description = creditDescription,
                 Date = DateTime.Now,
                 Type = "CREDIT"
             };
