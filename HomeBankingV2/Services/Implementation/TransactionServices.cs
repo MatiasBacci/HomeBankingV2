@@ -10,8 +10,8 @@ namespace HomeBankingV2.Services.Implementation
         public readonly ITransactionRepository _transactionRepository;
         public readonly IAccountRepository _accountRepository;
 
-        
-        public TransactionServices (IAccountRepository accountRepository, ITransactionRepository transactionRepository)
+        public TransactionServices (IAccountRepository accountRepository, 
+                                    ITransactionRepository transactionRepository)
         {
             _accountRepository = accountRepository;
             _transactionRepository = transactionRepository;
@@ -20,9 +20,8 @@ namespace HomeBankingV2.Services.Implementation
         public IEnumerable <TransactionDTO> GetAllTransactionsDTO() 
         {
             var transactions = _transactionRepository.GetAllTransactions();
-            var transactionsDTO = transactions.Select(t => new TransactionDTO(t)).ToList();
-
-            return (transactionsDTO);
+          
+            return (transactions.Select(t => new TransactionDTO(t)).ToList());
         }
 
         public Transaction CreateTransaction(TransferDTO transferDTO, Client currentClient)
@@ -39,6 +38,7 @@ namespace HomeBankingV2.Services.Implementation
 
             // Verificamos que exista la cuenta de origen y que pertenezca al cliente autenticado
             var fromAccount = _accountRepository.GetAccountByNumber(transferDTO.FromAccountNumber);
+            
             if (fromAccount == null)
             {
                 throw new Exception("Account not found.");
@@ -62,7 +62,7 @@ namespace HomeBankingV2.Services.Implementation
             }
 
             // Creamos transacciones de débito y crédito
-            Transaction debitTransaction = new Transaction
+            Transaction debitTransaction = new()
             {
                 AccountId = fromAccount.Id,
                 Amount = -transferDTO.Amount,
@@ -71,7 +71,7 @@ namespace HomeBankingV2.Services.Implementation
                 Type = "DEBIT"
             };
 
-            Transaction creditTransaction = new Transaction
+            Transaction creditTransaction = new()
             {
                 AccountId = toAccount.Id,
                 Amount = transferDTO.Amount,

@@ -10,10 +10,7 @@ namespace HomeBankingV2.Services.Implementation
     {
         private readonly IAccountRepository _accountRepository;
 
-        public AccountServices(IAccountRepository accountRepository)
-        {
-            _accountRepository = accountRepository;
-        }
+        public AccountServices(IAccountRepository accountRepository) => _accountRepository = accountRepository;
 
         public IEnumerable<AccountDTO> GetAllAccountsDTOList()
         {
@@ -31,12 +28,13 @@ namespace HomeBankingV2.Services.Implementation
                 newAccNumber = "VIN-" + RandomNumberGenerator.GetInt32(0, 99999999);
 
             } while (_accountRepository.GetAccountByNumber(newAccNumber) != null);
+            
             return newAccNumber;
         }
 
         public Account CreateAccount(Client client)
         {
-            if (client.Accounts?.Count() >= 3)
+            if (client.Accounts?.Count >= 3)
             {
                 throw new Exception("Forbidden");
             }
@@ -71,8 +69,6 @@ namespace HomeBankingV2.Services.Implementation
             var account = _accountRepository.FindById(id);
            
             return account;
-        }
-
-        
+        }    
     }
 }

@@ -12,7 +12,10 @@ namespace HomeBankingV2.Services.Implementation
         private readonly IClientLoanRepository _clientloanRepository;
         private readonly ITransactionRepository _transactionRepository;
 
-        public LoanServices(IAccountRepository accountRepository, IClientLoanRepository clientloanRepository, ITransactionRepository transactionRepository, ILoanRepository loanRepository )
+        public LoanServices(IAccountRepository accountRepository,
+                            IClientLoanRepository clientloanRepository,
+                            ITransactionRepository transactionRepository,
+                            ILoanRepository loanRepository)
         {
             _accountRepository = accountRepository;
             _clientloanRepository = clientloanRepository;
@@ -28,9 +31,7 @@ namespace HomeBankingV2.Services.Implementation
 
         public Loan GetById(long id)
         {
-            var loan = _loanRepository.FindById(id);
-
-            return loan;
+            return _loanRepository.FindById(id);
         }
 
         public ClientLoan CreateLoan (LoanApplicationDTO applicationDTO, Client currentClient)
@@ -39,42 +40,42 @@ namespace HomeBankingV2.Services.Implementation
             if (applicationDTO == null || string.IsNullOrEmpty(applicationDTO.Payments) || int.Parse(applicationDTO.Payments) == 0 ||
                 applicationDTO.Amount <= 0 || string.IsNullOrEmpty(applicationDTO.ToAccountNumber))
             {
-                throw new UnauthorizedAccessException("Please review the fields");
+                throw new Exception("Please review the fields");
             }
 
             //Verificamos que el préstamo exista
             Loan loan = _loanRepository.FindById(applicationDTO.LoanId);
 
             if (loan == null)
-                throw new UnauthorizedAccessException("Loan not found");
+                throw new Exception("Loan not found");
 
             //Verificamos que el monto solicitado no exceda el monto máximo del préstamo
             if (applicationDTO.Amount >= loan.MaxAmount)
-                throw new UnauthorizedAccessException("Max amount exceeded");
+                throw new Exception("Max amount exceeded");
 
             //Verificamos que la cantidad de cuotas se encuentre entre las disponibles del préstamo
             List<int> listOfPayments = loan.Payments.Split(',').Select(int.Parse).ToList();
 
             if (!listOfPayments.Contains(int.Parse(applicationDTO.Payments)))
-                throw new UnauthorizedAccessException("Invalid number of payments");
+                throw new Exception("Invalid number of payments");
 
             //Verificamos que la cuenta de destino exista
              Account toAccount = _accountRepository.GetAccountByNumber(applicationDTO.ToAccountNumber);
 
             if (applicationDTO.ToAccountNumber != toAccount.Number)
-                throw new UnauthorizedAccessException("Invalid Account Number");
+                throw new Exception("Invalid Account Number");
  
             if (currentClient == null)
             {
-                throw new UnauthorizedAccessException("Client not found");
+                throw new Exception("Client not found");
             }
 
             //Verificar que la cuenta de destino pertenezca al cliente autenticado
             if (toAccount.ClientId != currentClient.Id)
-                throw new UnauthorizedAccessException("Client does not have requested account number");
+                throw new Exception("Client does not have requested account number");
 
             //Se debe crear una solicitud de préstamo con el monto solicitado sumando el 20 % del mismo
-            ClientLoan requestedLoan = new ClientLoan()
+            ClientLoan requestedLoan = new()
             {
                 Amount = applicationDTO.Amount * 1.20,
                 Payments = applicationDTO.Payments,
@@ -83,7 +84,7 @@ namespace HomeBankingV2.Services.Implementation
             };
 
             //Creamos transaccion
-            Transaction transaction = new Transaction()
+            Transaction transaction = new()
             {
                 Amount = applicationDTO.Amount,
                 Type = "CREDIT",
@@ -91,6 +92,7 @@ namespace HomeBankingV2.Services.Implementation
                 Date = DateTime.Now,
                 AccountId = toAccount.Id,
             };
+
             toAccount.Balance += transaction.Amount;
 
             _clientloanRepository.Save(requestedLoan);

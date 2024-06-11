@@ -11,10 +11,7 @@ namespace HomeBankingV2.Services.Implementation
     {
         private readonly IClientRepository _clientRepository;
 
-        public ClientServices(IClientRepository clientRepository, IAccountServices accountServices)
-        {
-            _clientRepository = clientRepository;
-        }
+        public ClientServices(IClientRepository clientRepository) => _clientRepository = clientRepository;
 
         public List<ClientDTO> GetAllClients()
         {
@@ -25,17 +22,13 @@ namespace HomeBankingV2.Services.Implementation
         public ClientDTO GetById(long id) 
         {
             var client = _clientRepository.FindById(id);
-            var clientDTO = new ClientDTO(client);
-            return (clientDTO);
+            return (new ClientDTO(client));
         }
 
         public Client GetByEmail(string mail)
         {
             var client = _clientRepository.FindByEmail(mail);
-            if (client == null)
-                throw new UnauthorizedAccessException("Unauthorized");
-
-            return (client);
+            return client ?? throw new UnauthorizedAccessException("Unauthorized");
         }
 
         public Client GetCurrentClient(ClaimsPrincipal User)
@@ -46,19 +39,14 @@ namespace HomeBankingV2.Services.Implementation
 
             Client client = _clientRepository.FindByEmail(email);
 
-            if (client == null)
-                throw new UnauthorizedAccessException("Unauthorized");
-
-            return (client);
+            return client ?? throw new UnauthorizedAccessException("Unauthorized");
         }
 
         public ClientDTO GetCurrentClientDTO(ClaimsPrincipal User)
         {
             Client client = GetCurrentClient(User);
 
-            var clientDTO = new ClientDTO(client);
-
-            return (clientDTO);
+            return (new ClientDTO(client));
         }
 
         public Client CreateNewClient(ClientUserDTO clientUserDTO) 
@@ -72,7 +60,7 @@ namespace HomeBankingV2.Services.Implementation
                 throw new UnauthorizedAccessException("Email is in use");
 
 
-            Client newClient = new Client
+            Client newClient = new()
             {
                 Email = clientUserDTO.Email,
                 Password = clientUserDTO.Password,
