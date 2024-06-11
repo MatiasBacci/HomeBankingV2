@@ -1,7 +1,9 @@
-Descripción del Proyecto
+Descripción del Proyecto:
+
 HomeBankingV2 es una aplicación de banca en línea que permite a los clientes gestionar sus cuentas bancarias, tarjetas de crédito y débito, realizar transacciones y solicitar préstamos. La aplicación está diseñada para proporcionar una experiencia segura y eficiente utilizando tecnologías modernas para autenticación y gestión de datos.
 
-Tecnologías Utilizadas
+Tecnologías Utilizadas:
+
 ASP.NET Core: Framework principal para construir la API web.
 Entity Framework Core: ORM para interactuar con la base de datos.
 Microsoft SQL Server: Base de datos relacional para almacenar la información.
@@ -37,11 +39,12 @@ Solicitar nuevos préstamos.
 Ver detalles de cada préstamo, como monto, tasa de interés, y plazo de pago.
 
 Estructura del Proyecto
-Capa de Controladores
+
+Capa de Controladores:
 Los controladores manejan las solicitudes HTTP y llaman a los servicios correspondientes para realizar las operaciones solicitadas.
 
-Capa de Servicios
+Capa de Servicios:
 Los servicios contienen la lógica de negocio y se encargan de interactuar con los repositorios para realizar operaciones con la base de datos.
 
-Capa de Repositorios
+Capa de Repositorios:
 Los repositorios manejan las operaciones CRUD (Crear, Leer, Actualizar, Borrar) con la base de datos utilizando Entity Framework Core.
