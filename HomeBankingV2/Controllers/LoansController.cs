@@ -3,6 +3,7 @@ using HomeBankingV2.DTO_s;
 using Microsoft.AspNetCore.Mvc;
 using HomeBankingV2.Models;
 using HomeBankingV2.Services;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace HomeBankingV2.Controllers
@@ -22,7 +23,7 @@ namespace HomeBankingV2.Controllers
         }
 
         [HttpGet]
-        
+        [Authorize(Policy = "ClientOnly")]
         public IActionResult GetAll()
         {
             try
@@ -38,7 +39,7 @@ namespace HomeBankingV2.Controllers
         }
         
         [HttpGet("{id}")]
-
+        [Authorize(Policy = "ClientOnly")]
         public IActionResult GetId(long id)
         {
             try
@@ -55,7 +56,7 @@ namespace HomeBankingV2.Controllers
         }
 
         [HttpPost]
-        
+        [Authorize(Policy = "ClientOnly")]
         public IActionResult CreateLoan(LoanApplicationDTO loanAppDTO)
         {
             try

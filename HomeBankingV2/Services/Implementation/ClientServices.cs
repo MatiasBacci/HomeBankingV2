@@ -13,6 +13,21 @@ namespace HomeBankingV2.Services.Implementation
 
         public ClientServices(IClientRepository clientRepository) => _clientRepository = clientRepository;
 
+        public List <Claim> AddClaims(Client client)
+        {
+            var claims = new List<Claim>
+                {
+                    new Claim("Client", client.Email)
+                };
+
+            if (client.Email == "michael@gmail.com")
+            {
+                claims.Add(new Claim("Admin", "true"));
+            }
+
+            return claims;
+        }
+
         public List<ClientDTO> GetAllClients()
         {
             var clients = _clientRepository.GetAllClients();

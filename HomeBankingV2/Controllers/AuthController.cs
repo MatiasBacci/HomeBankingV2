@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using HomeBankingV2.DTO_s;
+using HomeBankingV2.Services;
 
 
 namespace HomeBankingV2.Controllers
@@ -13,33 +14,21 @@ namespace HomeBankingV2.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IClientRepository _clientRepository;
-        public AuthController(IClientRepository clientRepository)
-        {
-            _clientRepository = clientRepository;
-        }
+        private readonly IClientServices _clientServices;
+        public AuthController(IClientServices clientServices) => _clientServices = clientServices;
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] ClientLoginDTO clientDTO)
         {
             try
             {
-                Client user = _clientRepository.FindByEmail(clientDTO.Email);
-                if (user == null)
-                    return StatusCode(403, "Invalid User");
+                Client user = _clientServices.GetByEmail(clientDTO.Email);
+               
                 if (!String.Equals(user.Password, clientDTO.Password))
                     return StatusCode(403, "Invalid password");
 
-                var claims = new List<Claim>
-                {
-                    new Claim("Client", user.Email)
-                };
-
-                if (user.Email == "michael@gmail.com")
-                {
-                    claims.Add(new Claim("Admin", "true"));
-                }
-
+                var claims = _clientServices.AddClaims(user);
+       
                 var claimsIdentity = new ClaimsIdentity(
                     claims,
                     CookieAuthenticationDefaults.AuthenticationScheme

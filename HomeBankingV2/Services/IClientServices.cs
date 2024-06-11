@@ -6,6 +6,7 @@ namespace HomeBankingV2.Services
 {
     public interface IClientServices
     {
+        public List<Claim> AddClaims(Client client);
         public List<ClientDTO> GetAllClients();
         public ClientDTO GetById(long id);
         public Client GetByEmail(string mail);

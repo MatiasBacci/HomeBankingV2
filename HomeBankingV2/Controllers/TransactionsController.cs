@@ -48,7 +48,7 @@ namespace HomeBankingV2.Controllers
                 Client client = _clientServices.GetCurrentClient(User);
                 Transaction transaction = _transactionServices.CreateTransaction(transferDTO, client);
 
-                return Ok(transaction);
+                return Ok(new TransactionDTO(transaction));
             }
             catch (Exception ex) {
                 return BadRequest(ex.Message);

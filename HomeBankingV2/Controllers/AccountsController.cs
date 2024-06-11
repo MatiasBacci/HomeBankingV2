@@ -1,5 +1,6 @@
 ﻿using HomeBankingV2.DTO_s;
 using HomeBankingV2.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -17,6 +18,7 @@ namespace HomeBankingV2.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public IActionResult Get()
         {
             try
