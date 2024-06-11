@@ -42,13 +42,14 @@ namespace HomeBankingV2.Controllers
                 {
                     return StatusCode(403, "Unauthoriced");
                 }
-                // buscamos el cliente
+                // Buscamos el cliente
                 Client client = _clientRepository.FindByEmail(email);
 
                 if (client == null)
                 {
                     return NotFound("Client not found");
                 }
+
 
                 // Verificamos que exista la cuenta de origen y que pertenezca al cliente autenticado
                 var fromAccount = _accountRepository.GetAccountByNumber(transferDTO.FromAccountNumber);
@@ -61,11 +62,11 @@ namespace HomeBankingV2.Controllers
                     return StatusCode(403, "Source account does not belong to the authenticated client.");
                 }
 
-                // Verificamos que exista la cuenta de destino
-                var toAccount = _accountRepository.GetAccountByNumber(transferDTO.ToAccountNumber);
+                //Verificamos que exista la cuenta de destino
+                var toAccount = _accountRepository.GetAccountByNumber(transferDTO.FromAccountNumber);
                 if (toAccount == null)
                 {
-                    return NotFound("Destination account not found.");
+                    return NotFound("Source account not found.");
                 }
 
                 // Verificamos que la cuenta de origen tenga el monto disponible
