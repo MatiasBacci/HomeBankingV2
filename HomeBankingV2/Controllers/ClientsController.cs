@@ -1,13 +1,8 @@
 ﻿using HomeBankingV2.DTO_s;
 using HomeBankingV2.Models;
-using HomeBankingV2.Repositories;
-using HomeBankingV2.Repositories.Implementation;
 using HomeBankingV2.Services;
-using HomeBankingV2.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Security.Cryptography;
 
 
 

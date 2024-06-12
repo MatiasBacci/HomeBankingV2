@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using HomeBankingV2.DTO_s;
 using HomeBankingV2.Services;
-using HomeBankingV2.Services.Implementation;
+
 
 
 namespace HomeBankingV2.Controllers
@@ -32,7 +32,7 @@ namespace HomeBankingV2.Controllers
 
                 if (!isPasswordValid)
                 {
-                    return Unauthorized("Invalid email or password");
+                    return Unauthorized("Invalid password");
                 }
 
                 Client user = _clientServices.GetByEmail(clientLoginDTO.Email);
