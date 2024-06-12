@@ -47,6 +47,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
           options.LoginPath = new PathString("/index.html");
       });
 
+
 //autorización
 builder.Services.AddAuthorization(options =>
 {

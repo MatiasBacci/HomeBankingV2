@@ -19,6 +19,16 @@ namespace HomeBankingV2.Repositories.Implementation
                 .ToList();
         }
 
+        public IEnumerable<Client> GetOnlyClients()
+        {
+            return FindByCondition(client => !client.Email.Contains("@empresa.com"))
+                .Include(client => client.Accounts)
+                .Include(client => client.ClientLoans)
+                    .ThenInclude(cl => cl.Loan)
+                .Include(client => client.Cards)
+                .ToList();
+        }
+
         public Client FindById(long id)
         {
             return FindByCondition(client => client.Id == id)
