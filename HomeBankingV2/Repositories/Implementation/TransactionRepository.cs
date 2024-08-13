@@ -1,6 +1,4 @@
-﻿
-
-using HomeBankingV2.Models;
+﻿using HomeBankingV2.Models;
 
 
 namespace HomeBankingV2.Repositories.Implementation
@@ -11,16 +9,16 @@ namespace HomeBankingV2.Repositories.Implementation
         {
         }
 
-        public Transaction FindById(long id)
-        {
-            return FindByCondition(transaction => transaction.Id == id)
-                .FirstOrDefault();
-        }
-
         public IEnumerable<Transaction> GetAllTransactions()
         {
             return FindAll()
                 .ToList();
+        }
+
+        public Transaction FindById(long id)
+        {
+            return FindByCondition(transaction => transaction.Id == id)
+                .FirstOrDefault();
         }
 
         public void Save(Transaction transaction)
@@ -28,6 +26,5 @@ namespace HomeBankingV2.Repositories.Implementation
             Create(transaction);
             SaveChanges();
         }
-
     }
 }
